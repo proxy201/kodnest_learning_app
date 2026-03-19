@@ -59,6 +59,11 @@ services:
         - package-lock.json
         - render.yaml
     envVars:
+      - key: NEXT_PUBLIC_API_URL
+        fromService:
+          type: web
+          name: lms-api
+          envVarKey: RENDER_EXTERNAL_URL
       - key: INTERNAL_API_ORIGIN
         fromService:
           type: web
