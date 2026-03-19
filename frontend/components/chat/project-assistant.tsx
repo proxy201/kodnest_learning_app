@@ -9,6 +9,7 @@ import {
 } from "react";
 
 import { useAuth } from "@/components/auth/auth-provider";
+import { ChatMessageContent } from "@/components/chat/chat-message-content";
 import { Alert } from "@/components/common/alert";
 import { Button } from "@/components/common/button";
 import { askProjectAssistant, type ProjectChatMessage } from "@/lib/chat";
@@ -16,7 +17,7 @@ import { askProjectAssistant, type ProjectChatMessage } from "@/lib/chat";
 const STARTER_MESSAGE: ProjectChatMessage = {
   role: "assistant",
   content:
-    "Ask me about this learning platform project, including subjects, auth, progress, dashboard flow, or deployment."
+    "Ask me about your LMS, subjects, progress, general study questions."
 };
 
 const trimMessages = (messages: ProjectChatMessage[]) => messages.slice(-10);
@@ -93,7 +94,7 @@ export const ProjectAssistant = () => {
         onClick={() => setIsOpen((current) => !current)}
         type="button"
       >
-        {isOpen ? "Close assistant" : "Project assistant"}
+        {isOpen ? "Close assistant" : "AI assistant"}
       </button>
 
       {isOpen ? (
@@ -102,17 +103,14 @@ export const ProjectAssistant = () => {
             <div>
               <p className="eyebrow text-ink/45">Assistant</p>
               <h2 className="mt-2 text-xl font-semibold text-ink">
-                Project-only chatbot
+                AI study assistant
               </h2>
               <p className="mt-2 text-sm leading-6 text-ink/65">
                 {status === "authenticated"
-                  ? "Answers can use your current project progress."
-                  : "Answers stay limited to this project."}
+                  ? "Answers can use your LMS progress and enrolled subjects."
+                  : "Ask about the LMS, course topics, or general learning questions."}
               </p>
             </div>
-            <span className="glass-chip rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-[0.16em] text-ink/62">
-              {status === "authenticated" ? "Signed in" : "Public"}
-            </span>
           </div>
 
           <div
@@ -131,7 +129,11 @@ export const ProjectAssistant = () => {
                 <p className="mb-1 text-[11px] font-semibold uppercase tracking-[0.18em] text-ink/45">
                   {message.role === "assistant" ? "Assistant" : "You"}
                 </p>
-                <p>{message.content}</p>
+                {message.role === "assistant" ? (
+                  <ChatMessageContent content={message.content} />
+                ) : (
+                  <p className="whitespace-pre-wrap">{message.content}</p>
+                )}
               </div>
             ))}
             {isSending ? (
@@ -147,13 +149,13 @@ export const ProjectAssistant = () => {
             <input
               className="glass-input rounded-2xl px-4 py-3 transition"
               onChange={(event) => setInput(event.target.value)}
-              placeholder="Ask about subjects, auth, progress, or deployment..."
+              placeholder="Ask questions here..."
               type="text"
               value={input}
             />
             <div className="flex items-center justify-between gap-3">
               <p className="text-xs leading-5 text-ink/52">
-                Unrelated questions are blocked.
+                Best for LMS help, course topics, and study guidance.
               </p>
               <Button disabled={isSending || input.trim().length === 0} type="submit">
                 {isSending ? "Sending..." : "Send"}

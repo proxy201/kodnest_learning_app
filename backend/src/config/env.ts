@@ -1,6 +1,12 @@
 import dotenv from "dotenv";
+import { dirname, resolve } from "node:path";
+import { fileURLToPath } from "node:url";
 
-dotenv.config();
+const currentFilePath = fileURLToPath(import.meta.url);
+const currentDirPath = dirname(currentFilePath);
+const envFilePath = resolve(currentDirPath, "../../.env");
+
+dotenv.config({ path: envFilePath });
 
 const parseBoolean = (value: string | undefined, fallback = false): boolean => {
   if (!value) {
@@ -14,6 +20,9 @@ const parseNumber = (value: string | undefined, fallback: number): number => {
   const parsed = Number(value);
   return Number.isFinite(parsed) ? parsed : fallback;
 };
+
+const pickString = (...values: Array<string | undefined>): string =>
+  values.find((value) => typeof value === "string" && value.trim().length > 0)?.trim() ?? "";
 
 export const env = {
   NODE_ENV: process.env.NODE_ENV ?? "development",
@@ -30,8 +39,15 @@ export const env = {
   JWT_ACCESS_EXPIRES: process.env.JWT_ACCESS_EXPIRES ?? "15m",
   JWT_REFRESH_EXPIRES: process.env.JWT_REFRESH_EXPIRES ?? "30d",
   OPENAI_API_KEY: process.env.OPENAI_API_KEY ?? "",
-  HUGGING_FACE_API_KEY: process.env.HUGGING_FACE_API_KEY ?? "",
-  HUGGING_FACE_MODEL: process.env.HUGGING_FACE_MODEL ?? ""
+  HUGGING_FACE_API_KEY: pickString(
+    process.env.HUGGING_FACE_API_KEY,
+    process.env.HF_TOKEN
+  ),
+  HUGGING_FACE_MODEL: pickString(
+    process.env.HUGGING_FACE_MODEL,
+    process.env.HF_MODEL,
+    "Qwen/Qwen2.5-7B-Instruct"
+  )
 } as const;
 
 export const isProduction = env.NODE_ENV === "production";

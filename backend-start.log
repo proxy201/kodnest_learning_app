@@ -1,6 +1,0 @@
-
-> backend@0.1.0 start
-> node dist/index.js
-
-LMS API listening on port 4000
-^C^C
